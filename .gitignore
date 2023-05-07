@@ -1,2 +1,4 @@
 hand_drawn_data/
 dataset_final/
+__pycache__/
+.vscode/

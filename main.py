@@ -19,3 +19,5 @@ def classify_components(list_comp, img, rects):
     classified, annoted_img = classify.driver_classify(list_comp, img, rects)
     return classified, annoted_img
 
+def make_schematics():
+    pass

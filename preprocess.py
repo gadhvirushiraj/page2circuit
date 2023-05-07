@@ -8,17 +8,17 @@ def initial_filtering(img):
     # converting to grey scale
     img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     # applying adaptive threshold
-    img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 31, 21)
-    transition_list.append(img)
+    noise_img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 31, 21)
+    transition_list.append(noise_img)
     # opening i.e. eroding the img and then dialating it for removing noise & dialating again
     k3 = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
-    img = cv2.morphologyEx(img, cv2.MORPH_OPEN, k3, iterations=2)
+    img = cv2.morphologyEx(noise_img, cv2.MORPH_OPEN, k3, iterations=2)
     k3_2 = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
     transition_list.append(img)
     img = cv2.dilate(img, k3_2, iterations=2)
     
 
-    return img
+    return img, noise_img
 
 def cluster_anchor_points(img, original_img):
     anchor_points = cv2.goodFeaturesToTrack(image=img,maxCorners=50,qualityLevel=0.30,minDistance=20)
@@ -42,19 +42,18 @@ def cluster_anchor_points(img, original_img):
     return anchor_points, labels, unique_labels, counts
 
 
-def remove_components(img, anchor_points, labels, unique_labels, counts):
+def remove_components(img, noise_img, anchor_points, labels, unique_labels, counts):
     components_ext = []
     rects = []
     rects_contour = []
 
-    img_copy = img.copy()
     for l,_ in enumerate(counts):
         if l == 0: continue
         px = [int(i[0]) for i in anchor_points[labels == unique_labels[l]]]
         py = [int(i[1]) for i in anchor_points[labels == unique_labels[l]]]
         if abs(max(py)-min(py))*abs(max(px)-min(px)) > 700:
-            components_ext.append(img_copy[min(py)-15:max(py)+15, min(px)-15:max(px)+15])
-            img[min(py)-15:max(py)+15, min(px)-15:max(px)+15] = 0    
+            components_ext.append(noise_img[min(py)-15:max(py)+15, min(px)-15:max(px)+15])
+            img[min(py)-15:max(py)+15, min(px)-15:max(px)+15] = 0      
             rects_contour.append((np.array([[min(px)-15, min(py)-15],[max(px)+15, min(py)-15],[max(px)+15, max(py)+15],[min(px)-15, max(py)+15]])))
             rects.append([min(px)-22,max(px)+22,min(py)-22,max(py)+22])
     
@@ -102,8 +101,8 @@ def wire_mapping(img, rects, rects_contour, original_img):
 def driver_preprocess(img):
     transition_list.clear()
     original_img = img.copy()
-    img = initial_filtering(img)
+    img, noise_img = initial_filtering(img)
     anchor_points, labels, unique_labels, counts = cluster_anchor_points(img, original_img)
-    img, rects, rects_contour, components = remove_components(img, anchor_points, labels, unique_labels, counts)
+    img, rects, rects_contour, components = remove_components(img,noise_img, anchor_points, labels, unique_labels, counts)
     img = wire_mapping(img, rects, rects_contour, original_img)
     return img, transition_list, components, rects

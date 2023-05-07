@@ -4,7 +4,7 @@ from torchvision import transforms
 
 def class_component(img):
     # thin the lines in image
-    img = cv2.morphologyEx(img, cv2.MORPH_ERODE, cv2.getStructuringElement(cv2.MORPH_RECT, (3,3)), iterations=1)
+    img = cv2.morphologyEx(img, cv2.MORPH_ERODE, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)), iterations=2)
     # load the model
     model = torch.load('model.pkl')
     model.eval()
@@ -13,7 +13,6 @@ def class_component(img):
         transforms.ToTensor(),
         transforms.Resize((64,64)),
         transforms.Lambda(lambda x: x[0,:,:].T),
-        transforms.Lambda(lambda x: x.unsqueeze(0)),
     ])
     # convert the img
     img = trans(img)
@@ -26,7 +25,7 @@ def class_component(img):
                   'dep_volt_r1','dep_volt_r2','dep_volt_r3','diode_r0','diode_r1',
                   'diode_r2','diode_r3','gnd_1','inductor_r0','inductor_r1','resistor_r0','resistor_r1']
     # predict the class
-    pred = model(img)
+    pred = model(img.unsqueeze(0))
     pred = torch.argmax(pred, dim=1)
     
     return label_list[pred]
