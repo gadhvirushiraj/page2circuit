@@ -4,8 +4,7 @@ from torchvision import transforms
 
 def class_component(img):
     # thin the lines in image
-    img = cv2.morphologyEx(img, cv2.MORPH_ERODE, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)), iterations=2)
-    # load the model
+    img = cv2.morphologyEx(img, cv2.MORPH_ERODE, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)), iterations=1)
     model = torch.load('model.pkl')
     model.eval()
     # transform the image

@@ -9,13 +9,14 @@ st.markdown("""---""")
 
 img = st.file_uploader(label='Upload your hand-drawn circuit image', type=["png", "jpg", "jpeg"])
 
-st.write('download circuit images below for testing')
-col1, col2, col3 = st.columns([1,1,1])
-col1.image('test_images/test2.jpeg', caption='Sample Image', use_column_width=True)
-col2.image('test_images/test3.jpeg', caption='Sample Image', use_column_width=True)
-col3.image('test_images/test1.jpeg', caption='Sample Image', use_column_width=True)
-st.markdown("""---""")
+if img is None:
+    st.write('download circuit images below for testing')
+    col1, col2, col3 = st.columns([1,1,1])
+    col1.image('test_images/test4.jpeg', caption='Sample Image', use_column_width=True)
+    col2.image('test_images/test3.jpeg', caption='Sample Image', use_column_width=True)
+    col3.image('test_images/test1.jpeg', caption='Sample Image', use_column_width=True)
 
+st.markdown("""---""")
 col1, col2 = st.columns(2)
 if img is not None:
     st.success("Image uploaded successfully")
@@ -36,7 +37,7 @@ if img is not None:
         classified, annoted_img = main.classify_components(components_ext, img, rects)  
         if len(classified) == 0:
             st.stop()
-            
+
         col2.image(annoted_img, caption='Processed Image', use_column_width=True)
     st.markdown("""---""")
 
@@ -46,9 +47,12 @@ if img is not None and is_preprocess:
     col1.image(img, caption='Uploaded Image', use_column_width=True)
     col2.image(transition_imgs[0], caption='Step 1: Adaptive Thresholding', use_column_width=True)
     col3.image(transition_imgs[1], caption='Step 2: Noise Removal & Dilation', use_column_width=True)
+    col1, col2, col3 = st.columns(3)
     col1.image(transition_imgs[2], caption='Step 3: Clustering Anchor Points for Component Detection', use_column_width=True)
-    col2.image(transition_imgs[3], caption='Step 4: Removing Components', use_column_width=True)
-    col3.image(result_img, caption='Step 5: Mapping Wires using Contours', use_column_width=True)
-    col1.image(annoted_img, caption='Step 6: Classified Components', use_column_width=True)
-    col2.image(components_ext[0], caption='Step 6: Classified Components', use_column_width=True)
+    col2.image(transition_imgs[3], caption='Step 4: Applying FAST for Corner Detection', use_column_width=True)
+    col3.image(transition_imgs[4], caption='Step 5: Combining Clustering Outputs', use_column_width=True)
+    col1, col2, col3 = st.columns(3)
+    col1.image(transition_imgs[5], caption='Step 5: Removing Components', use_column_width=True)
+    col2.image(annoted_img, caption='Step 6: Classifying Components', use_column_width=True)
+    col3.image(result_img, caption='Step 7: Mapping Connections & making Contours', use_column_width=True)
     st.markdown("""---""")
