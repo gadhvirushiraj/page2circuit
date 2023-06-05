@@ -11,10 +11,7 @@ img = st.file_uploader(label='Upload your hand-drawn circuit image', type=["png"
 
 if img is None:
     st.write('download circuit images below for testing')
-    col1, col2, col3 = st.columns([1,1,1])
-    col1.image('test_images/test4.jpeg', caption='Sample Image', use_column_width=True)
-    col2.image('test_images/test3.jpeg', caption='Sample Image', use_column_width=True)
-    col3.image('test_images/test1.jpeg', caption='Sample Image', use_column_width=True)
+    st.image('test_images/test2.jpeg', caption='Sample Image', use_column_width=True)
 
 st.markdown("""---""")
 col1, col2 = st.columns(2)
